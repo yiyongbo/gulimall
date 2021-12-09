@@ -1,20 +1,15 @@
 package com.yee.gulimall.coupon.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.yee.gulimall.coupon.entity.CouponEntity;
-import com.yee.gulimall.coupon.service.CouponService;
 import com.yee.common.utils.PageUtils;
 import com.yee.common.utils.R;
+import com.yee.gulimall.coupon.entity.CouponEntity;
+import com.yee.gulimall.coupon.service.CouponService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 
 
 /**
@@ -27,8 +22,16 @@ import com.yee.common.utils.R;
 @RestController
 @RequestMapping("coupon/coupon")
 public class CouponController {
+
     @Autowired
     private CouponService couponService;
+
+    @RequestMapping("/member/list")
+    public R memberCoupons(){
+        CouponEntity couponEntity = new CouponEntity();
+        couponEntity.setCouponName("满100减10");
+        return R.ok().put("coupons", Collections.singletonList(couponEntity));
+    }
 
     /**
      * 列表
