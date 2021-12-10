@@ -5,6 +5,8 @@ import com.yee.common.utils.R;
 import com.yee.gulimall.coupon.entity.CouponEntity;
 import com.yee.gulimall.coupon.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -19,12 +21,23 @@ import java.util.Map;
  * @email yyb990929@gmail.com
  * @date 2021-12-08 23:07:37
  */
+@RefreshScope
 @RestController
 @RequestMapping("coupon/coupon")
 public class CouponController {
 
     @Autowired
     private CouponService couponService;
+
+    @Value("${coupon.user.name}")
+    private String name;
+    @Value("${coupon.user.age}")
+    private Integer age;
+
+    @RequestMapping("/test")
+    public R test() {
+        return R.ok().put("name",name).put("age",age);
+    }
 
     @RequestMapping("/member/list")
     public R memberCoupons(){
