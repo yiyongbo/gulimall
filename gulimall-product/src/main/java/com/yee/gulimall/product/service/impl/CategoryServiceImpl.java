@@ -35,15 +35,18 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<CategoryEntity> list = baseMapper.selectList(null);
         //2、组装成父子的树形结构
         //2.1 找到所有的一级分类
-        List<CategoryEntity> level1Menus = list.stream()
+        return list.stream()
                 .filter(item -> item.getCatLevel() == 1)
-                .map(item -> {
-                    item.setChildren(getChildren(item, list));
-                    return item;
-                })
+                .peek(item -> item.setChildren(getChildren(item, list)))
                 .sorted(Comparator.comparing(CategoryEntity::getSort))
                 .collect(Collectors.toList());
-        return list;
+    }
+
+    @Override
+    public void removeMenuByIds(List<Long> singletonList) {
+        // TODO 检查当前删除的菜单，是否被别的地方引用
+        // 逻辑删除
+        baseMapper.deleteBatchIds(singletonList);
     }
 
     /**
@@ -53,16 +56,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * @return List<CategoryEntity>
      */
     private List<CategoryEntity> getChildren(CategoryEntity root, List<CategoryEntity> all) {
-        List<CategoryEntity> children = all.stream()
-                .filter(item -> {
-                    return item.getParentCid().equals(root.getCatId());
-                })
-                .map(item -> {
-                    item.setChildren(getChildren(item, all));
-                    return item;
-                })
+        return all.stream()
+                .filter(item -> item.getParentCid().equals(root.getCatId()))
+                .peek(item -> item.setChildren(getChildren(item, all)))
                 .sorted(Comparator.comparing(CategoryEntity::getSort))
                 .collect(Collectors.toList());
-        return children;
     }
 }
