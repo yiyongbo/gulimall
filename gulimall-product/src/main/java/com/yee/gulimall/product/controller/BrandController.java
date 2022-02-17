@@ -1,9 +1,14 @@
 package com.yee.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
+import com.yee.common.valid.ValidGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.bind.BindResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +20,7 @@ import com.yee.gulimall.product.service.BrandService;
 import com.yee.common.utils.PageUtils;
 import com.yee.common.utils.R;
 
+import javax.validation.Valid;
 
 
 /**
@@ -58,8 +64,8 @@ public class BrandController {
      */
     @RequestMapping("/save")
     // @RequiresPermissions("product:brand:save")
-    public R save(@RequestBody BrandEntity brand){
-		brandService.save(brand);
+    public R save(@Validated(value = ValidGroup.Crud.Create.class) @RequestBody BrandEntity brand){
+        brandService.save(brand);
 
         return R.ok();
     }

@@ -8,6 +8,7 @@
 
 package com.yee.common.utils;
 
+import com.yee.common.exception.BizCodeEnum;
 import org.apache.http.HttpStatus;
 
 import java.util.HashMap;
@@ -39,6 +40,9 @@ public class R extends HashMap<String, Object> {
 		r.put("code", code);
 		r.put("msg", msg);
 		return r;
+	}
+	public static R error(BizCodeEnum bizCodeEnum) {
+		return error(bizCodeEnum.getCode(), bizCodeEnum.getMsg());
 	}
 
 	public static R ok(String msg) {
