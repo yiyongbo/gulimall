@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.yee.common.valid.ListValue;
 import com.yee.common.valid.ValidGroup;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
@@ -49,12 +50,13 @@ public class BrandEntity implements Serializable {
 	/**
 	 * 显示状态[0-不显示；1-显示]
 	 */
+	@ListValue(values = {0, 1})
 	private Integer showStatus;
 	/**
 	 * 检索首字母
 	 */
 	@NotBlank
-	@Pattern(regexp = "/^[a-zA-Z]$/", message = "检索首字母必须是一个字母")
+	@Pattern(regexp = "^[a-zA-Z]$", message = "检索首字母必须是一个字母")
 	private String firstLetter;
 	/**
 	 * 排序

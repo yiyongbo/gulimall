@@ -41,6 +41,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
     public R handleException(Exception e) {
+        log.error("错误：", e);
         return R.error(BizCodeEnum.UNKNOWN_EXCEPTION);
     }
 
