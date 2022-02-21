@@ -7,17 +7,22 @@ import com.yee.common.utils.PageUtils;
 import com.yee.common.utils.Query;
 import com.yee.gulimall.product.dao.CategoryDao;
 import com.yee.gulimall.product.entity.CategoryEntity;
+import com.yee.gulimall.product.service.CategoryBrandRelationService;
 import com.yee.gulimall.product.service.CategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
+
+    @Autowired
+    CategoryBrandRelationService categoryBrandRelationService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -47,6 +52,41 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         // TODO 检查当前删除的菜单，是否被别的地方引用
         // 逻辑删除
         baseMapper.deleteBatchIds(singletonList);
+    }
+
+    @Override
+    public Long[] findCatelogPath(Long catelogId) {
+        List<Long> paths = new ArrayList<>();
+        List<Long> parentPath = findParentPath(catelogId, paths);
+        Collections.reverse(parentPath);
+        return paths.toArray(new Long[parentPath.size()]);
+    }
+
+    /**
+     * 级联更新所有关联的数据
+     * @param category 分类信息
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateCascade(CategoryEntity category) {
+        CategoryEntity dbCategoryEntity = this.getById(category.getCatId());
+        this.updateById(category);
+        if (StringUtils.hasText(category.getName()) && !dbCategoryEntity.getName().equals(category.getName())) {
+            // 同步更新其他关联表中的数据
+            categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+
+            // TODO 更新其他关联
+        }
+    }
+
+    private List<Long> findParentPath(Long catelogId, List<Long> paths) {
+        // 1、收集当前节点id
+        paths.add(catelogId);
+        CategoryEntity byId = this.getById(catelogId);
+        if (byId.getParentCid() != 0) {
+            findParentPath(byId.getParentCid(), paths);
+        }
+        return paths;
     }
 
     /**
