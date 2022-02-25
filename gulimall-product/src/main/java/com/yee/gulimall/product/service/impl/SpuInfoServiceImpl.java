@@ -1,5 +1,7 @@
 package com.yee.gulimall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yee.common.to.SkuReductionTO;
 import com.yee.common.to.SpuBoundTO;
 import com.yee.common.utils.R;
@@ -171,6 +173,31 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Override
     public void saveBaseSpuInfo(SpuInfoEntity spuInfoEntity) {
         this.baseMapper.insert(spuInfoEntity);
+    }
+
+    @Override
+    public PageUtils queryPageByCondition(Map<String, Object> params) {
+        String key = (String) params.get("key");
+        String status = (String) params.get("status");
+        String brandId = (String) params.get("brandId");
+        String catalogId = (String) params.get("catelogId");
+        LambdaQueryWrapper<SpuInfoEntity> queryWrapper = Wrappers.lambdaQuery(SpuInfoEntity.class);
+
+        if (StringUtils.hasText(key)) {
+            queryWrapper.and(wrapper -> {
+                wrapper.eq(SpuInfoEntity::getId, key).or().like(SpuInfoEntity::getSpuName, key);
+            });
+        }
+
+        IPage<SpuInfoEntity> page = this.page(
+                new Query<SpuInfoEntity>().getPage(params),
+                queryWrapper
+                        .eq(StringUtils.hasText(status), SpuInfoEntity::getPublishStatus, status)
+                        .eq(StringUtils.hasText(brandId) && !"0".equalsIgnoreCase(brandId), SpuInfoEntity::getBrandId, brandId)
+                        .eq(StringUtils.hasText(catalogId) && !"0".equalsIgnoreCase(catalogId), SpuInfoEntity::getCatalogId, catalogId)
+        );
+
+        return new PageUtils(page);
     }
 
 }
