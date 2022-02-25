@@ -3,6 +3,7 @@ package com.yee.gulimall.coupon.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.yee.common.to.SkuReductionTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,12 @@ import com.yee.common.utils.R;
 public class SkuFullReductionController {
     @Autowired
     private SkuFullReductionService skuFullReductionService;
+
+    @RequestMapping("/saveinfo")
+    public R saveInfo(@RequestBody SkuReductionTO skuReductionTO){
+        skuFullReductionService.saveSkuReduction(skuReductionTO);
+        return R.ok();
+    }
 
     /**
      * 列表

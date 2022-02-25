@@ -7,5 +7,5 @@ spring:
         server-addr: 127.0.0.1:8848
         file-extension: yaml
         namespace: c8b5ff7f-7299-4d94-afc1-62fa20d8b923
-        group: dev
+        group: prod
 
