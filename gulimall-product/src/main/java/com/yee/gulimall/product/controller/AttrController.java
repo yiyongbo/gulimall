@@ -1,8 +1,11 @@
 package com.yee.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.yee.gulimall.product.entity.ProductAttrValueEntity;
+import com.yee.gulimall.product.service.ProductAttrValueService;
 import com.yee.gulimall.product.vo.AttrResponseVO;
 import com.yee.gulimall.product.vo.AttrVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,15 @@ import com.yee.common.utils.R;
 public class AttrController {
     @Autowired
     private AttrService attrService;
+
+    @Autowired
+    ProductAttrValueService productAttrValueService;
+
+    @GetMapping("/base/listforspu/{spuId}")
+    public R baseAttrListForSpu(@PathVariable("spuId") Long spuId){
+        List<ProductAttrValueEntity> entityList = productAttrValueService.baseAttrListForSpu(spuId);
+        return R.ok().put("data", entityList);
+    }
 
     @GetMapping("/{attrType}/list/{catelogId}")
     // @RequiresPermissions("product:attr:list")
@@ -81,6 +93,12 @@ public class AttrController {
     public R update(@RequestBody AttrVO vo){
 		attrService.updateAttr(vo);
 
+        return R.ok();
+    }
+
+    @PostMapping("/update/{spuId}")
+    public R updateSpuAttr(@PathVariable("spuId") Long spuId, @RequestBody List<ProductAttrValueEntity> entityList){
+        productAttrValueService.updateSpuAttr(spuId, entityList);
         return R.ok();
     }
 
