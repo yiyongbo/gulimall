@@ -1,7 +1,6 @@
-/**
-  * Copyright 2019 bejson.com 
-  */
 package com.yee.gulimall.product.vo;
+
+import com.yee.common.to.MemberPrice;
 import lombok.Data;
 
 import java.math.BigDecimal;
