@@ -4,10 +4,14 @@ import com.yee.common.utils.PageUtils;
 import com.yee.common.utils.R;
 import com.yee.gulimall.ware.entity.PurchaseEntity;
 import com.yee.gulimall.ware.service.PurchaseService;
+import com.yee.gulimall.ware.vo.MergeVO;
+import com.yee.gulimall.ware.vo.PurchaseDoneVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 
@@ -24,6 +28,31 @@ import java.util.Map;
 public class PurchaseController {
     @Autowired
     private PurchaseService purchaseService;
+
+
+    @PostMapping("/done")
+    public R done(@RequestBody PurchaseDoneVO vo){
+        purchaseService.done(vo);
+        return R.ok();
+    }
+
+    @PostMapping("/received")
+    public R received(@RequestBody List<Long> ids){
+        purchaseService.received(ids);
+        return R.ok();
+    }
+
+    @PostMapping("/merge")
+    public R merge(@RequestBody MergeVO vo){
+        purchaseService.mergePurchase(vo);
+        return R.ok();
+    }
+
+    @RequestMapping("/unreceive/list")
+    public R unreceiveList(@RequestParam Map<String, Object> params){
+        PageUtils page = purchaseService.queryPageUnreceivePurchase(params);
+        return R.ok().put("page", page);
+    }
 
     /**
      * 列表
@@ -54,6 +83,8 @@ public class PurchaseController {
     @RequestMapping("/save")
     // @RequiresPermissions("ware:wmspurchase:save")
     public R save(@RequestBody PurchaseEntity wmsPurchase){
+        wmsPurchase.setCreateTime(new Date());
+        wmsPurchase.setUpdateTime(new Date());
 		purchaseService.save(wmsPurchase);
 
         return R.ok();
