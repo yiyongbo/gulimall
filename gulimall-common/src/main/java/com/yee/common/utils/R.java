@@ -8,6 +8,9 @@
 
 package com.yee.common.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yee.common.exception.BizCodeEnum;
 import org.apache.http.HttpStatus;
 
@@ -21,6 +24,18 @@ import java.util.Map;
  */
 public class R extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
+
+	public <T> T getData(TypeReference<T> typeReference) throws JsonProcessingException {
+		Object data = get("data");
+		ObjectMapper objectMapper = new ObjectMapper();
+		String s = objectMapper.writeValueAsString(data);
+		return objectMapper.readValue(s, typeReference);
+	}
+
+	public R setData(Object data) {
+		put("data", data);
+		return this;
+	}
 	
 	public R() {
 		put("code", 0);

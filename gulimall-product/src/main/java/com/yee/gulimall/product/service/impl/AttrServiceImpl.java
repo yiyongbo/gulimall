@@ -2,6 +2,7 @@ package com.yee.gulimall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yee.common.constant.ProductConstant;
 import com.yee.gulimall.product.dao.AttrAttrgroupRelationDao;
@@ -251,6 +252,17 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         }
         IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), queryWrapper);
         return new PageUtils(page);
+    }
+
+    @Override
+    public List<Long> selectSearchAttrIds(List<Long> attrIds) {
+        List<AttrEntity> list = this.list(
+                Wrappers.lambdaQuery(AttrEntity.class)
+                        .select(AttrEntity::getAttrId)
+                        .in(AttrEntity::getAttrId, attrIds)
+                        .eq(AttrEntity::getSearchType, 1)
+        );
+        return list.stream().map(AttrEntity::getAttrId).collect(Collectors.toList());
     }
 
 }

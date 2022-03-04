@@ -4,10 +4,12 @@ import com.yee.common.utils.PageUtils;
 import com.yee.common.utils.R;
 import com.yee.gulimall.ware.entity.WareSkuEntity;
 import com.yee.gulimall.ware.service.WareSkuService;
+import com.yee.gulimall.ware.vo.SkuHasStockVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -24,6 +26,13 @@ import java.util.Map;
 public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
+
+    @PostMapping("/hasstock")
+    public R getSkusHasStock(@RequestBody List<Long> skuIds) {
+        List<SkuHasStockVO> vos = wareSkuService.getSkusHasStock(skuIds);
+
+        return R.ok().setData(vos);
+    }
 
     /**
      * 列表
