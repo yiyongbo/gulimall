@@ -34,6 +34,6 @@ public class ElasticSaveController {
             return R.error(BizCodeEnum.PRODUCT_UP_EXCEPTION);
         }
 
-        return flag ? R.ok() : R.error(BizCodeEnum.PRODUCT_UP_EXCEPTION);
+        return flag ? R.error(BizCodeEnum.PRODUCT_UP_EXCEPTION) : R.ok();
     }
 }
