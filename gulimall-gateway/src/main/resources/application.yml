@@ -2,6 +2,13 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: product_route
+          uri: lb://gulimall-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+
         - id: member_route
           uri: lb://gulimall-member
           predicates:
@@ -30,10 +37,10 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /renren-fast/$\{segment}
 
-        - id: product_route
+        - id: gulimall_host_route
           uri: lb://gulimall-product
           predicates:
-            - Host=**.yee9.cn
+            - Host=**.gulimall.com
 
 
 

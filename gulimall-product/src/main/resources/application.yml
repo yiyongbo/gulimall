@@ -36,5 +36,5 @@ mybatis-plus:
       logic-not-delete-value: 0
 logging:
   level:
-    com.yee.gulimall: debug
+    com.yee.gulimall: error
 

@@ -92,24 +92,25 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Override
     public Map<String, List<Catalog2VO>> getCatalogJson() {
+
+        // 将数据库的多次查询变为一次
+        List<CategoryEntity> selectList = this.baseMapper.selectList(null);
+
+
         // 1、查出所有一级分类
-        List<CategoryEntity> level1Categorys = getLevel1Categorys();
+        List<CategoryEntity> level1Categorys = getCategoryEntities(selectList, 0L);
         // 2、封装数据
         Map<String, List<Catalog2VO>> collect = level1Categorys.stream().collect(Collectors.toMap(
                 k -> k.getCatId().toString(),
                 v -> {
                     // 1、每一个的一级分类，查到这个一级分类的二级分类
-                    List<CategoryEntity> categoryEntities = baseMapper.selectList(
-                            Wrappers.lambdaQuery(CategoryEntity.class)
-                                    .eq(CategoryEntity::getParentCid, v.getCatId()));
+                    List<CategoryEntity> categoryEntities = getCategoryEntities(selectList, v.getCatId());
                     // 2、封装上面的结果
-                    List<Catalog2VO> catalog2VOList = categoryEntities.stream()
+                    return categoryEntities.stream()
                             .map(l2 -> {
                                 Catalog2VO catalog2VO = new Catalog2VO(v.getCatId().toString(), null, l2.getCatId().toString(), l2.getName());
                                 // 1、找当前二级分类的三级分类封装成vo
-                                List<CategoryEntity> catalog3VOList = baseMapper.selectList(
-                                        Wrappers.lambdaQuery(CategoryEntity.class)
-                                                .eq(CategoryEntity::getParentCid, l2.getCatId()));
+                                List<CategoryEntity> catalog3VOList = getCategoryEntities(selectList, l2.getCatId());
                                 if (catalog3VOList != null) {
                                     // 2、封装成指定格式
                                     List<Catalog2VO.Catalog3VO> collect1 = catalog3VOList.stream()
@@ -120,11 +121,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                                 return catalog2VO;
                             })
                             .collect(Collectors.toList());
-
-                    return catalog2VOList;
                 }
         ));
         return collect;
+    }
+
+    private List<CategoryEntity> getCategoryEntities(List<CategoryEntity> selectList, Long parentCid) {
+        return selectList.stream().filter(item -> item.getParentCid().equals(parentCid)).collect(Collectors.toList());
     }
 
     private List<Long> findParentPath(Long catelogId, List<Long> paths) {
