@@ -1,5 +1,6 @@
 package com.yee.gulimall.product.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yee.gulimall.product.entity.CategoryEntity;
 import com.yee.gulimall.product.service.CategoryService;
 import com.yee.gulimall.product.vo.Catalog2VO;
@@ -32,7 +33,7 @@ public class IndexController {
 
     @GetMapping("/index/catalog.json")
     @ResponseBody
-    public Map<String, List<Catalog2VO>> getCatalogJson() {
+    public Map<String, List<Catalog2VO>> getCatalogJson() throws JsonProcessingException {
         Map<String, List<Catalog2VO>> map = categoryService.getCatalogJson();
         return map;
     }

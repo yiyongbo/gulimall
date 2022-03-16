@@ -12,11 +12,11 @@ spring:
     hikari:
       connection-timeout: 60000
       validation-timeout: 3000
-      idle-timeout: 60000
+      idle-timeout: 600000
       login-timeout: 5
-      max-lifetime: 60000
+      max-lifetime: 1800000
       maximum-pool-size: 10
-      minimum-idle: 10
+      minimum-idle: 5
       read-only: false
   cloud:
     nacos:
@@ -26,6 +26,17 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
   thymeleaf:
     cache: false
+  redis:
+    host: 211.159.224.38
+    port: 6379
+    password: 5qzzo97C
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+      use-key-prefix: true
+      # 是否缓存空值，防止缓存穿透
+      cache-null-values: true
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
