@@ -37,7 +37,7 @@ public class SearchParam {
     /**
      * 价格区间，1_500/_500/500_
      */
-    private Integer skuPrice;
+    private String skuPrice;
 
     /**
      * 品牌ID集合
@@ -53,5 +53,5 @@ public class SearchParam {
     /**
      * 页码
      */
-    private Integer pageNum;
+    private Integer pageNum = 1;
 }
