@@ -25,6 +25,15 @@ import java.util.Map;
 public class R extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
 
+	// 利用 fastjson 进行逆转
+	public <T> T getData(String key, TypeReference<T> typeReference) throws JsonProcessingException {
+		Object data = get(key);
+		ObjectMapper objectMapper = new ObjectMapper();
+		String s = objectMapper.writeValueAsString(data);
+		return objectMapper.readValue(s, typeReference);
+	}
+
+	// 利用 fastjson 进行逆转
 	public <T> T getData(TypeReference<T> typeReference) throws JsonProcessingException {
 		Object data = get("data");
 		ObjectMapper objectMapper = new ObjectMapper();

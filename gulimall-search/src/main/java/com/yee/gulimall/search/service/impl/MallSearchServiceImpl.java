@@ -1,11 +1,16 @@
 package com.yee.gulimall.search.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yee.common.to.es.SkuEsModel;
+import com.yee.common.utils.R;
 import com.yee.gulimall.search.config.ElasticConfig;
 import com.yee.gulimall.search.constant.EsConstant;
+import com.yee.gulimall.search.feign.ProductFeignService;
 import com.yee.gulimall.search.service.MallSearchService;
+import com.yee.gulimall.search.vo.AttrResponseVO;
+import com.yee.gulimall.search.vo.BrandVO;
 import com.yee.gulimall.search.vo.SearchParam;
 import com.yee.gulimall.search.vo.SearchResult;
 import org.apache.lucene.search.join.ScoreMode;
@@ -34,6 +39,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -51,6 +58,9 @@ public class MallSearchServiceImpl implements MallSearchService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private ProductFeignService productFeignService;
+
     @Override
     public SearchResult search(SearchParam param) {
         // 1、动态构建出查询需要的DSL语句
@@ -64,7 +74,7 @@ public class MallSearchServiceImpl implements MallSearchService {
             SearchResponse response = client.search(searchRequest, ElasticConfig.COMMON_OPTIONS);
 
             // 4、分析响应数据封装成我们需要的格式
-            result = buildSearchResult(response, param.getPageNum());
+            result = buildSearchResult(response, param);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -187,10 +197,9 @@ public class MallSearchServiceImpl implements MallSearchService {
      * 构建结果数据
      *
      * @param response 响应数据
-     * @param pageNum 当前页码
      * @return 结果数据
      */
-    private SearchResult buildSearchResult(SearchResponse response, Integer pageNum) throws JsonProcessingException {
+    private SearchResult buildSearchResult(SearchResponse response, SearchParam param) throws JsonProcessingException {
         SearchResult searchResult = new SearchResult();
         SearchHits hits = response.getHits();
         // 1、返回的所有查询到的商品
@@ -216,7 +225,8 @@ public class MallSearchServiceImpl implements MallSearchService {
         attrIdAgg.getBuckets().forEach(item -> {
             SearchResult.AttrVO attrVO = new SearchResult.AttrVO();
             // 得到属性的id
-            attrVO.setAttrId(item.getKeyAsNumber().longValue());
+            long attrId = item.getKeyAsNumber().longValue();
+            attrVO.setAttrId(attrId);
             // 得到属性的名字
             String attrName = ((ParsedStringTerms) item.getAggregations().get("attr_name_agg")).getBuckets().get(0).getKeyAsString();
             attrVO.setAttrName(attrName);
@@ -261,14 +271,88 @@ public class MallSearchServiceImpl implements MallSearchService {
         searchResult.setCatalogs(catalogVOList);
 
         // 5、分页信息-页码
-        searchResult.setPageNum(pageNum);
+        searchResult.setPageNum(param.getPageNum());
         // 6、分页信息-总记录数
         long total = hits.getTotalHits().value;
         searchResult.setTotal(total);
         // 7、分页信息-总页码
         int totalPages = (int) (total % EsConstant.PRODUCT_PAGE_SIZE == 0 ? total / EsConstant.PRODUCT_PAGE_SIZE : (total / EsConstant.PRODUCT_PAGE_SIZE) + 1);
         searchResult.setTotalPages(totalPages);
+
+        List<Integer> pageNavs = new ArrayList<>();
+        for (int i = 1; i <= totalPages; i++) {
+            pageNavs.add(i);
+        }
+        searchResult.setPageNavs(pageNavs);
+
+        // 8、构建面包屑导航功能
+        if (Objects.nonNull(param.getAttrs()) && param.getAttrs().size() > 0) {
+            List<SearchResult.NavVO> navVOList = param.getAttrs().stream().map(attr -> {
+                // 8.1、分析每个attrs传过来的查询参数值
+                SearchResult.NavVO navVO = new SearchResult.NavVO();
+                String[] s = attr.split("_");
+                R r = productFeignService.attrInfo(Long.parseLong(s[0]));
+                searchResult.getAttrIds().add(Long.parseLong(s[0]));
+                if (r.getCode() == 0) {
+                    try {
+                        AttrResponseVO data = r.getData("attr", new TypeReference<AttrResponseVO>() {});
+                        navVO.setNavName(data.getAttrName());
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                }
+                navVO.setNavValue(s[1]);
+
+                // 8.2、取消了这个面包屑以后，我们要跳转到那个地方，将请求地址的url里面的当前置空
+                String replace = replaceQueryString(param, attr, "attrs");
+                navVO.setLink("http://search.gulimall.com/list.html?" + replace);
+                return navVO;
+            }).collect(Collectors.toList());
+
+            searchResult.setNavs(navVOList);
+        }
+
+        // 品牌面包屑导航
+        if (Objects.nonNull(param.getBrandId()) && param.getBrandId().size() > 0) {
+            List<SearchResult.NavVO> navVOList = searchResult.getNavs();
+            SearchResult.NavVO navVO = new SearchResult.NavVO();
+            navVO.setNavName("品牌");
+            // 远程查询所有品牌
+            R r = productFeignService.brandsInfos(param.getBrandId());
+            if (r.getCode() == 0) {
+                List<BrandVO> brandVOS = r.getData("brand", new TypeReference<List<BrandVO>>() {});
+                StringBuffer buffer = new StringBuffer();
+                String replace = "";
+                for (BrandVO brandVO : brandVOS) {
+                    buffer.append(brandVO.getBrandName()).append(";");
+                    replace = replaceQueryString(param, brandVO.getBrandId().toString(), "brandId");
+
+                }
+                navVO.setNavValue(buffer.toString());
+                navVO.setLink("http://search.gulimall.com/list.html?" + replace);
+            }
+            navVOList.add(navVO);
+        }
+
+        // TODO 分类面包屑导航，不需要导航取消
+
+
+
         return searchResult;
+    }
+
+    private String replaceQueryString(SearchParam param, String value, String key) {
+        String encode = null;
+        try {
+            encode = URLEncoder.encode(value, "UTF-8");
+            // 浏览器对空格编码和java不一样
+            encode = encode.replace("+", "%20");
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String replace = param.getQueryString().replace("&" + key + "=" + encode, "");
+        return replace;
     }
 
 }

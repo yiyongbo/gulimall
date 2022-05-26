@@ -3,6 +3,7 @@ package com.yee.gulimall.search.vo;
 import com.yee.common.to.es.SkuEsModel;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,7 +47,25 @@ public class SearchResult {
      */
     private Integer totalPages;
 
+    /**
+     * 导航页码
+     */
+    private List<Integer> pageNavs;
+
+    /**
+     * 面包屑导航数据
+     */
+    private List<NavVO> navs = new ArrayList<>();
+    private List<Long> attrIds = new ArrayList<>();
+
     // ==========以上是返回给页面的所有信息==========
+
+    @Data
+    public static class NavVO {
+        private String navName;
+        private String navValue;
+        private String link;
+    }
 
     @Data
     public static class CatalogVO {

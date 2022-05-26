@@ -1,38 +1,36 @@
 package com.yee.gulimall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yee.common.constant.ProductConstant;
+import com.yee.common.utils.PageUtils;
+import com.yee.common.utils.Query;
 import com.yee.gulimall.product.dao.AttrAttrgroupRelationDao;
+import com.yee.gulimall.product.dao.AttrDao;
 import com.yee.gulimall.product.dao.AttrGroupDao;
 import com.yee.gulimall.product.dao.CategoryDao;
 import com.yee.gulimall.product.entity.AttrAttrgroupRelationEntity;
+import com.yee.gulimall.product.entity.AttrEntity;
 import com.yee.gulimall.product.entity.AttrGroupEntity;
 import com.yee.gulimall.product.entity.CategoryEntity;
+import com.yee.gulimall.product.service.AttrService;
 import com.yee.gulimall.product.service.CategoryService;
 import com.yee.gulimall.product.vo.AttrGroupRelationVO;
 import com.yee.gulimall.product.vo.AttrResponseVO;
 import com.yee.gulimall.product.vo.AttrVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yee.common.utils.PageUtils;
-import com.yee.common.utils.Query;
-
-import com.yee.gulimall.product.dao.AttrDao;
-import com.yee.gulimall.product.entity.AttrEntity;
-import com.yee.gulimall.product.service.AttrService;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 
 @Service("attrService")
@@ -127,6 +125,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         return pageUtils;
     }
 
+    @Cacheable(value = "attr", key = "'attrinfo:' + #root.args[0]")
     @Override
     public AttrResponseVO getAttrInfo(Long attrId) {
         AttrResponseVO attrResponseVO = new AttrResponseVO();

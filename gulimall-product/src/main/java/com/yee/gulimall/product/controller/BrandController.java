@@ -1,26 +1,17 @@
 package com.yee.gulimall.product.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.yee.common.valid.ValidGroup;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.bind.BindResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.yee.gulimall.product.entity.BrandEntity;
-import com.yee.gulimall.product.service.BrandService;
 import com.yee.common.utils.PageUtils;
 import com.yee.common.utils.R;
+import com.yee.common.valid.ValidGroup;
+import com.yee.gulimall.product.entity.BrandEntity;
+import com.yee.gulimall.product.service.BrandService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -57,6 +48,14 @@ public class BrandController {
 		BrandEntity brand = brandService.getById(brandId);
 
         return R.ok().put("brand", brand);
+    }
+
+    @GetMapping("/infos")
+    // @RequiresPermissions("product:brand:info")
+    public R infos(@RequestParam("brandIds") List<Long> brandIds){
+        List<BrandEntity> brands = brandService.getBrandsByIds(brandIds);
+
+        return R.ok().put("brands", brands);
     }
 
     /**
