@@ -1,23 +1,22 @@
 package com.yee.gulimall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.yee.gulimall.product.entity.SpuInfoEntity;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yee.common.utils.PageUtils;
+import com.yee.common.utils.Query;
+import com.yee.gulimall.product.dao.SkuInfoDao;
+import com.yee.gulimall.product.entity.SkuInfoEntity;
+import com.yee.gulimall.product.service.SkuInfoService;
+import com.yee.gulimall.product.vo.SkuItemVO;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yee.common.utils.PageUtils;
-import com.yee.common.utils.Query;
-
-import com.yee.gulimall.product.dao.SkuInfoDao;
-import com.yee.gulimall.product.entity.SkuInfoEntity;
-import com.yee.gulimall.product.service.SkuInfoService;
-import org.springframework.util.StringUtils;
 
 
 @Service("skuInfoService")
@@ -27,7 +26,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SkuInfoEntity> page = this.page(
                 new Query<SkuInfoEntity>().getPage(params),
-                new QueryWrapper<SkuInfoEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);
@@ -70,6 +69,22 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         return this.list(
                 Wrappers.lambdaQuery(SkuInfoEntity.class).eq(SkuInfoEntity::getSpuId, spuId)
         );
+    }
+
+    @Override
+    public SkuItemVO item(Long skuId) {
+        SkuItemVO skuItemVO = new SkuItemVO();
+        // 1、sku基本信息获取  pms_sku_info
+
+        // 2、sku的图片信息 pms_sku_images
+
+        // 3、获取spu的销售属性组合
+
+        // 4、获取spu的介绍
+
+        // 5、获取spu的规格参数信息
+
+        return skuItemVO;
     }
 
 }
