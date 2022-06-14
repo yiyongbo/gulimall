@@ -1,29 +1,27 @@
 package com.yee.gulimall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yee.common.utils.PageUtils;
+import com.yee.common.utils.Query;
+import com.yee.gulimall.product.dao.AttrGroupDao;
 import com.yee.gulimall.product.entity.AttrEntity;
+import com.yee.gulimall.product.entity.AttrGroupEntity;
+import com.yee.gulimall.product.service.AttrGroupService;
 import com.yee.gulimall.product.service.AttrService;
 import com.yee.gulimall.product.vo.AttrGroupWithAttrsVO;
+import com.yee.gulimall.product.vo.SkuItemVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yee.common.utils.PageUtils;
-import com.yee.common.utils.Query;
-
-import com.yee.gulimall.product.dao.AttrGroupDao;
-import com.yee.gulimall.product.entity.AttrGroupEntity;
-import com.yee.gulimall.product.service.AttrGroupService;
-import org.springframework.util.StringUtils;
 
 
 @Service("attrGroupService")
@@ -88,5 +86,11 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         }).collect(Collectors.toList());
 
         return attrGroupWithAttrsVOS;
+    }
+
+    @Override
+    public List<SkuItemVO.SpuItemAttrGroupVO> getAttrGroupWithAttrsBySpuId(Long spuId, Long catalogId) {
+        // 1、查出当前spu对应的所有属性分组信息以及当前分组下的所有属性对应的值
+        return baseMapper.getAttrGroupWithAttrsBySpuId(spuId, catalogId);
     }
 }
