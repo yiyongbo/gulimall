@@ -6,3 +6,7 @@ spring:
       oss:
         bucket: gulimall20211218
         endpoint: oss-cn-hangzhou.aliyuncs.com
+      sms:
+        host: https://cxkjsms.market.alicloudapi.com
+        path: /chuangxinsms/dxjk
+        appCode: a33879281a8a47658a36198a68716acb

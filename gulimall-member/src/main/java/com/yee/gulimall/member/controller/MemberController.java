@@ -1,10 +1,15 @@
 package com.yee.gulimall.member.controller;
 
+import com.yee.common.exception.BizCodeEnum;
 import com.yee.common.utils.PageUtils;
 import com.yee.common.utils.R;
 import com.yee.gulimall.member.entity.MemberEntity;
+import com.yee.gulimall.member.exception.PhoneExistException;
+import com.yee.gulimall.member.exception.UsernameExistException;
 import com.yee.gulimall.member.feign.CouponFeignService;
 import com.yee.gulimall.member.service.MemberService;
+import com.yee.gulimall.member.vo.UserLoginVO;
+import com.yee.gulimall.member.vo.UserRegisterVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +41,30 @@ public class MemberController {
         R memberCoupons = couponFeignService.memberCoupons();
 
         return R.ok().put("member", memberEntity).put("coupons", memberCoupons.get("coupons"));
+    }
+
+
+    @PostMapping("/login")
+    public R login(@RequestBody UserLoginVO userLoginVO) {
+        MemberEntity memberEntity = memberService.login(userLoginVO);
+        if (memberEntity != null) {
+            return R.ok().setData(memberEntity);
+        } else {
+            return R.error(BizCodeEnum.LOGIN_ACCOUNT_PASSWORD_INVALID_EXCEPTION);
+        }
+    }
+
+
+    @PostMapping("/register")
+    public R register(@RequestBody UserRegisterVO userRegisterVO) {
+        try {
+            memberService.register(userRegisterVO);
+        } catch (PhoneExistException e) {
+            return R.error(BizCodeEnum.PHONE_EXIST_EXCEPTION);
+        } catch (UsernameExistException e) {
+            return R.error(BizCodeEnum.USER_EXIST_EXCEPTION);
+        }
+        return R.ok();
     }
 
     /**
