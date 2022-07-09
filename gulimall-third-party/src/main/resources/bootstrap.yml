@@ -4,11 +4,14 @@ server:
 spring:
   application:
     name: gulimall-third-party
+  profiles:
+    active: dev
   cloud:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
       config:
         server-addr: 127.0.0.1:8848
-        file-extension: yaml
+        namespace: fa8ae864-e1c1-4a62-b82c-1b9c7ffe1a4d
+        file-extension: yml
 

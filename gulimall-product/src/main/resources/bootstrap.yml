@@ -1,9 +1,9 @@
 server:
-  port: 7000
+  port: 10000
 
 spring:
   application:
-    name: gulimall-coupon
+    name: gulimall-product
   profiles:
     active: dev
   cloud:
@@ -12,6 +12,9 @@ spring:
         server-addr: 127.0.0.1:8848
       config:
         server-addr: 127.0.0.1:8848
-        file-extension: yml
         namespace: fa8ae864-e1c1-4a62-b82c-1b9c7ffe1a4d
+        file-extension: yml
+
+
+
 
